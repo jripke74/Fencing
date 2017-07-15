@@ -44,6 +44,10 @@ class ViewController: UIViewController {
             if let deviceMotion = self.motionManager.deviceMotion {
                 let accel = deviceMotion.userAcceleration
                 print(String(format: "X: %7.4 Y: %7.4f", accel.y))
+                let rot = deviceMotion.attitude
+                if rot.pitch > 1.4 && rot.pitch < 1.57 {
+                    print("Salute ---------ON GARDE")
+                }
                 if accel.y >= 2.0 {
                     var gyro = CMRotationRate()
                     if self.motionManager.isGyroAvailable {
@@ -52,13 +56,21 @@ class ViewController: UIViewController {
                     } else {
                         print("Gyro not available.")
                     }
-                    if gyro.z > 4.0 || gyro.z < -4.0 {
+                    var slashAxis = gyro.z
+                    if abs(rot.roll) > 0.79 {
+                        slashAxis = gyro.x
+                    }
+                    if slashAxis > 4.0 || slashAxis < -4.0 {
                         print("/////////Slash\\\\\\\\\\")
                     } else {
                         print("*********Thrust***********")
                     }
                 } else {
-                    if accel.x <= -1.0 || accel.x >= 1.0 {
+                    var parryAxis = accel.x
+                    if abs(rot.roll) > 0.79 {
+                        parryAxis = accel.z
+                    }
+                    if parryAxis <= -1.0 || parryAxis >= 1.0 {
                         print("===========Parry==========")
                     }
                 }
