@@ -43,9 +43,13 @@ class ViewController: UIViewController {
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { (timer) in
             if let deviceMotion = self.motionManager.deviceMotion {
                 let accel = deviceMotion.userAcceleration
-                print(String(format: "Y: %7.4f", accel.y))
+                print(String(format: "X: %7.4 Y: %7.4f", accel.y))
                 if accel.y >= 2.0 {
                     print("*********Thrust***********")
+                } else {
+                    if accel.x <= -1.0 || accel.x >= 1.0 {
+                        print("===========Parry==========")
+                    }
                 }
             }
         })
