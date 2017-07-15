@@ -45,12 +45,24 @@ class ViewController: UIViewController {
                 let accel = deviceMotion.userAcceleration
                 print(String(format: "X: %7.4 Y: %7.4f", accel.y))
                 if accel.y >= 2.0 {
-                    print("*********Thrust***********")
+                    var gyro = CMRotationRate()
+                    if self.motionManager.isGyroAvailable {
+                        gyro = deviceMotion.rotationRate
+                        print(String(format: "Rotation Rate Z: %7.4f", gyro.z))
+                    } else {
+                        print("Gyro not available.")
+                    }
+                    if gyro.z > 4.0 || gyro.z < -4.0 {
+                        print("/////////Slash\\\\\\\\\\")
+                    } else {
+                        print("*********Thrust***********")
+                    }
                 } else {
                     if accel.x <= -1.0 || accel.x >= 1.0 {
                         print("===========Parry==========")
                     }
                 }
+
             }
         })
     }
