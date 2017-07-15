@@ -15,14 +15,48 @@ class ViewController: UIViewController {
     let interval = 0.01
     var timer = Timer()
     let altimeter = CMAltimeter()
+    let motionActivityManager = CMMotionActivityManager()
+    var isSafe = true
+    
+    func startSafetyCheck() {
+        if CMMotionActivityManager.isActivityAvailable() {
+            motionActivityManager.startActivityUpdates(to: OperationQueue.main, withHandler: { (motionActivity) in
+                if let activity = motionActivity {
+                    if activity.confidence == .high || activity.confidence == .medium {
+                        print("High Confidence")
+                        if activity.running {
+                            self.isSafe = false
+                        } else {
+                            self.isSafe = true
+                        }
+                    }
+                }
+            })
+        }
+    }
+    
+    func safetyCheck() {
+        if isSafe == false {
+            timer.invalidate()
+            print("Don't run with a sword!")
+            let alert = UIAlertController(title: "Be Safe!!", message: "Running arund with a sword is not a safe thing to do", preferredStyle: .alert)
+            let okayAction = UIAlertAction(title: "Okay", style: .default, handler: { (alert) in
+                self.isSafe = true
+                self.startTimer()
+            })
+            alert.addAction(okayAction)
+            present(alert, animated: true, completion: nil)
+        }
+    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if isDeviceAvailable() {
             print("Jeff: Core Motion Launched")
-            //myDeviceMotion()
+            startSafetyCheck()
+            myDeviceMotion()
             //myAltimeter()
-            myMagnetometer()
+            //myMagnetometer()
         }
     }
     
@@ -47,6 +81,7 @@ class ViewController: UIViewController {
     
     func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { (timer) in
+            self.safetyCheck()
             if let deviceMotion = self.motionManager.deviceMotion {
                 let accel = deviceMotion.userAcceleration
                 print(String(format: "X: %7.4 Y: %7.4f", accel.y))
