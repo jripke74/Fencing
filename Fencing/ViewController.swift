@@ -14,12 +14,14 @@ class ViewController: UIViewController {
     let motionManager = CMMotionManager()
     let interval = 0.01
     var timer = Timer()
+    let altimeter = CMAltimeter()
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if isDeviceAvailable() {
             print("Jeff: Core Motion Launched")
-            myDeviceMotion()
+            //myDeviceMotion()
+            myAltimeter()
         }
     }
     
@@ -27,7 +29,9 @@ class ViewController: UIViewController {
         super.viewWillDisappear(animated)
         motionManager.stopDeviceMotionUpdates()
         timer.invalidate()
+        altimeter.stopRelativeAltitudeUpdates()
     }
+    
     func isDeviceAvailable() -> Bool {
 //        let gyroAvailable = motionManager.isGyroAvailable
 //        let accelAvailable = motionManager.isAccelerometerAvailable
@@ -77,6 +81,27 @@ class ViewController: UIViewController {
 
             }
         })
+    }
+    
+    func myAltimeter() {
+        var first = true
+        var firstPresure = 0.0
+        if CMAltimeter.isRelativeAltitudeAvailable() {
+            altimeter.startRelativeAltitudeUpdates(to: OperationQueue.main, withHandler: { (altitude, error) in
+                if let altitude = altitude {
+                    let pressure = altitude.pressure as! Double
+                    let relAltitude = altitude.relativeAltitude as! Double
+                    if first {
+                        firstPresure = pressure
+                        first = false
+                    }
+                    let presureChange = firstPresure - pressure
+                    print("JEFF: Presure \(pressure) Pressure Change \(presureChange)  Altitude Change \(relAltitude)")
+                }
+            })
+        } else {
+            print("JEFF: No Altimeter Available")
+        }
     }
     
     func myDeviceMotion() {
