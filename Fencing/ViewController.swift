@@ -21,7 +21,8 @@ class ViewController: UIViewController {
         if isDeviceAvailable() {
             print("Jeff: Core Motion Launched")
             //myDeviceMotion()
-            myAltimeter()
+            //myAltimeter()
+            myMagnetometer()
         }
     }
     
@@ -30,6 +31,7 @@ class ViewController: UIViewController {
         motionManager.stopDeviceMotionUpdates()
         timer.invalidate()
         altimeter.stopRelativeAltitudeUpdates()
+        motionManager.stopMagnetometerUpdates()
     }
     
     func isDeviceAvailable() -> Bool {
@@ -81,6 +83,23 @@ class ViewController: UIViewController {
 
             }
         })
+    }
+    
+    func myMagnetometer() {
+        if motionManager.isMagnetometerAvailable {
+            motionManager.magnetometerUpdateInterval = 0.05
+            motionManager.startMagnetometerUpdates(to: OperationQueue.main, withHandler: { (magnetometer, error) in
+                if self.motionManager.isMagnetometerActive {
+                    if let field = magnetometer?.magneticField {
+                        print(String(format: "Raw: x: %10.4f Y: %10.4f z: %10.4f", field.x, field.y, field.z))
+                        return
+                    }
+                }
+                print("JEFF: Raw magnetometer not active")
+            })
+        } else {
+            print("JEFF: Magnetometer Not Available")
+        }
     }
     
     func myAltimeter() {
