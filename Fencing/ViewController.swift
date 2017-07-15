@@ -12,7 +12,7 @@ import CoreMotion
 class ViewController: UIViewController {
     
     let motionManager = CMMotionManager()
-    let interval = 0.5
+    let interval = 0.01
     var timer = Timer()
     
     override func viewDidAppear(_ animated: Bool) {
@@ -42,7 +42,11 @@ class ViewController: UIViewController {
     func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { (timer) in
             if let deviceMotion = self.motionManager.deviceMotion {
-                print(String(format: "X: %7.4f", deviceMotion.userAcceleration.x))
+                let accel = deviceMotion.userAcceleration
+                print(String(format: "Y: %7.4f", accel.y))
+                if accel.y >= 2.0 {
+                    print("*********Thrust***********")
+                }
             }
         })
     }
